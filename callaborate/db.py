@@ -4,11 +4,11 @@
 Utils to interact with the redis DB
 """
 import csv
-from datetime import datetime
 import json
 import os
-
 import redis
+from datetime import datetime
+from app import app
 
 LOCAL_REDIS = 'redis://localhost:6379/0'
 REDIS_URL = os.environ.get('REDISCLOUD_URL', LOCAL_REDIS)
@@ -16,6 +16,11 @@ CALLEE_COUNTER_KEY = 'callee_counter'
 EVENTS_KEY = 'events'
 CALLED_NUMBERS_SET_KEY = 'called_numbers_set'
 redis = redis.from_url(REDIS_URL)
+
+
+with open(app.config['CALLEE_DATA'], 'r') as f:
+    CALLEES = list(csv.DictReader(f))
+
 
 def store_event(event_name, data):
     event = dict(
@@ -25,11 +30,10 @@ def store_event(event_name, data):
     )
     redis.rpush(EVENTS_KEY, json.dumps(event))
 
+
 def count_calls():
     return redis.get(CALLEE_COUNTER_KEY)
 
-
-CALLEES = list(csv.DictReader(open('data/callees.csv')))
 
 def get_next_callee():
     index = redis.incr(CALLEE_COUNTER_KEY) - 1
@@ -41,12 +45,14 @@ def get_next_callee():
         redis.sadd(CALLED_NUMBERS_SET_KEY, callee['phone'])
         return index, callee
 
+
 def get_events():
     events = {}
     for e in redis.lrange("events", 0, -1):
         e = json.loads(e)
         events.setdefault(e['name'], []).append(e)
     return events
+
 
 def coalesce_dicts(signins):
     user = {}
@@ -58,6 +64,7 @@ def coalesce_dicts(signins):
                 user[k] = s.get(k)
     return user
 
+
 def sort_dicts_by_key(items, sort_key, mutate=lambda k, v: k):
     retval = {}
     for i in items:
@@ -65,16 +72,20 @@ def sort_dicts_by_key(items, sort_key, mutate=lambda k, v: k):
         retval.setdefault(key, []).append(i)
     return retval
 
+
 def get_calls_by_phone():
     events = get_events()
     call_data = [e['data']['raw_data'] for e in events['save_call']]
     caller_data = [e['data']['raw_data']['caller'] for e in events['save_call']]
+
     def remove_dashes(k, v):
         if k:
             return k.replace('-', '')
         else:
             return k
+
     return sort_dicts_by_key(caller_data, 'phoneNumber', mutate=remove_dashes)
+
 
 def get_full_leaderboard():
     calls_by_phone = get_calls_by_phone()
@@ -83,6 +94,7 @@ def get_full_leaderboard():
     full_leaderboard = [dict(calls=v, **u) for u, (v,k) in zip(users, leaders)]
     for l in full_leaderboard: del l['sessionId']
     return full_leaderboard
+
 
 def get_leaderboard():
     users = get_full_leaderboard()

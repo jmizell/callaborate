@@ -1,0 +1,41 @@
+TESTING = False
+DEBUG = False
+STATIC_FOLDER = "/app/config/static/"
+TEMPLATE_FOLDER = "/app/config/templates/"
+BIND_HOST = "0.0.0.0"
+BIND_PORT = 5000
+SECRET_KEY = "CHANGE-ME"
+
+TIMEZONE_UTC_OFFSET = -7
+CALL_TIME_START = 0
+CALL_TIME_END = 24
+CALLEE_DATA = "/app/config/data/callees.csv"
+TEST_CALLEE = "555-555-5555"
+TROPO_VOICE_API_KEY = ""
+TEST_CALL_FROM = "555-555-5555"
+TEST_CALL_TO = "555-555-5555"
+CALL_DATA_FORM = {
+    "url": "https://docs.google.com/forms/d/<FORM_ID>/formResponse",
+    "fields": {
+        "caller": {
+            "entry.XXXXXXXXXX": "phoneNumber",
+            "entry.XXXXXXXXXX": "emailAddress",
+            "entry.XXXXXXXXXX": "firstName",
+            "entry.XXXXXXXXXX": "lastName",
+            "entry.XXXXXXXXXX": "zipCode"
+        },
+            "callee": {
+            "entry.XXXXXXXXXX": "phone",
+            "entry.XXXXXXXXXX": "first_name",
+            "entry.XXXXXXXXXX": "middle_name",
+            "entry.XXXXXXXXXX": "last_name",
+            "entry.XXXXXXXXXX": "residential_zip5"
+        },
+        "call": {
+            "entry.XXXXXXXXXX": "votesInPrimaries",
+            "entry.XXXXXXXXXX": "willVoteCorruption",
+            "entry.XXXXXXXXXX": "willVoteRubens",
+            "entry.XXXXXXXXXX": "status"
+        }
+    }
+}
