@@ -168,20 +168,15 @@ def count_calls():
 
 
 def get_next_callee():
-    """
-    # TODO Testing, fix before commit
-    """
-    # index = redis.incr(CALLEE_COUNTER_KEY) - 1
-    index = 0
+    index = redis.incr(CALLEE_COUNTER_KEY) - 1
     callee = callees.get(index)
     redis.sadd(CALLED_NUMBERS_SET_KEY, callee['phone'])
-    return index, callee
-    # if redis.sismember(CALLED_NUMBERS_SET_KEY, callee['phone']):
-    #     store_event('skipped_repeat_number', callee)
-    #     return get_next_callee()
-    # else:
-    #     redis.sadd(CALLED_NUMBERS_SET_KEY, callee['phone'])
-    #     return index, callee
+    if redis.sismember(CALLED_NUMBERS_SET_KEY, callee['phone']):
+        store_event('skipped_repeat_number', callee)
+        return get_next_callee()
+    else:
+        redis.sadd(CALLED_NUMBERS_SET_KEY, callee['phone'])
+        return index, callee
 
 
 def get_events():
