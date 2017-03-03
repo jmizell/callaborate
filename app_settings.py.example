@@ -9,33 +9,74 @@ SECRET_KEY = "CHANGE-ME"
 TIMEZONE_UTC_OFFSET = -7
 CALL_TIME_START = 0
 CALL_TIME_END = 24
-CALLEE_DATA = "/app/config/data/callees.csv"
 TEST_CALLEE = "555-555-5555"
 TROPO_VOICE_API_KEY = ""
 TEST_CALL_FROM = "555-555-5555"
 TEST_CALL_TO = "555-555-5555"
-CALL_DATA_FORM = {
-    "url": "https://docs.google.com/forms/d/<FORM_ID>/formResponse",
-    "fields": {
-        "caller": {
-            "entry.XXXXXXXXXX": "phoneNumber",
-            "entry.XXXXXXXXXX": "emailAddress",
-            "entry.XXXXXXXXXX": "firstName",
-            "entry.XXXXXXXXXX": "lastName",
-            "entry.XXXXXXXXXX": "zipCode"
+CALL_FORM_FIELDS = {
+    "callInfo": {
+        "call_status": {
+            "label": "Call Status",
+            "description": "",
+            "type": "radio",
+            "column_name": "call_status",
+            "options": [
+                "Answered",
+                "Voicemail/No Answer",
+                "Do Not Call",
+                "Wrong Number/Disconnected"
+            ]
         },
-            "callee": {
-            "entry.XXXXXXXXXX": "phone",
-            "entry.XXXXXXXXXX": "first_name",
-            "entry.XXXXXXXXXX": "middle_name",
-            "entry.XXXXXXXXXX": "last_name",
-            "entry.XXXXXXXXXX": "residential_zip5"
+        "support": {
+            "label": "Support Level",
+            "description": "",
+            "type": "radio",
+            "column_name": "support",
+            "options": [
+                "Yes",
+                "No"
+            ]
         },
-        "call": {
-            "entry.XXXXXXXXXX": "votesInPrimaries",
-            "entry.XXXXXXXXXX": "willVoteCorruption",
-            "entry.XXXXXXXXXX": "willVoteRubens",
-            "entry.XXXXXXXXXX": "status"
+        "contact_legislator": {
+            "label": "Contact Legislator",
+            "description": "",
+            "type": "radio",
+            "column_name": "contact_legislator",
+            "options": [
+                "Yes",
+                "No"
+            ]
+        },
+        "comments": {
+            "label": "Call Comments",
+            "description": "",
+            "type": "textarea",
+            "column_name": "comments",
+            "options": []
         }
+    },
+    "caller": {
+        "emailAddress": {"column_name": "agent_email"},
+        "firstName": {"column_name": "agent_first_name"},
+        "lastName": {"column_name": "agent_last_name"},
+        "phoneNumber": {"column_name": "agent_phone"},
+        "zipCode": {"column_name": "support"}
     }
+
+}
+CALL_SCRIPT = "<a href='https://docs.google.com/document/d/xxxxxxxxx/edit?usp=sharing' target='_blank'>Click here for call script</a>"
+SPREADSHEET_ID = ""
+GOOGLE_APP_ID = ""
+GOOGLE_APP_SECRET = ""
+GOOGLE_KEY_FILE_DICT = {
+  "type": "service_account",
+  "project_id": "",
+  "private_key_id": "",
+  "private_key": "",
+  "client_email": "",
+  "client_id": "",
+  "auth_uri": "",
+  "token_uri": "",
+  "auth_provider_x509_cert_url": "",
+  "client_x509_cert_url": ""
 }

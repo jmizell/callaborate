@@ -1,13 +1,12 @@
 import hashlib
-import os
-import requests
+from multiprocessing.dummy import Pool as ThreadPool
 from datetime import datetime, timedelta
 from functools import wraps
-from flask import jsonify, request, send_from_directory
+from flask import jsonify, request, send_from_directory, render_template
 from flask.ext.cors import cross_origin
 import calls
 import db
-from db import store_event, get_next_callee, CALLEES
+from db import store_event, get_next_callee, callees
 from app import app
 from app import SECRET
 
@@ -21,6 +20,13 @@ def create_key(index):
 
 def check_key(index, key):
     return create_key(index) == key
+
+
+def insert_record(parameters):
+    column_name = parameters[0]
+    callee_id = parameters[1]
+    value = parameters[2]
+    callees.write_cell(column_name=column_name, row=callee_id, value=value)
 
 
 def timeblock(inner_fn):
@@ -74,7 +80,10 @@ def send_js(path):
 
 @app.route('/')
 def root():
-    return app.send_static_file('index.html')
+    return render_template(
+        'index.html',
+        CALL_SCRIPT=app.config['CALL_SCRIPT'],
+        CALL_FORM_FIELDS=app.config['CALL_FORM_FIELDS'])
 
 
 @app.route('/call_count')
@@ -116,8 +125,6 @@ def connect_caller():
 def connect_callee():
     data = request.get_json()
     callee, phone = get_callee()
-    if os.environ.get('PRODUCTION') is None:
-        phone = app.config['TEST_CALLEE']
     calls.send_signal(data['sessionId'], phone)
 
     event_data = {'caller': data, 'callee': callee, 'phone': phone}
@@ -128,22 +135,28 @@ def connect_callee():
 @app.route('/save_call', methods=['POST'])
 def save_call():
     raw_data = request.get_json()
+
     # check key
     callee_id = raw_data['callee']['id']
     callee_key = raw_data['callee']['key']
     if not check_key(callee_id, callee_key):
         return 'failed'
-    source_data = {
-        'callee': CALLEES[callee_id],
-        'caller': raw_data['caller'],
-        'call': raw_data['callInfo'],
-    }
-    call_data_config = app.config['CALL_DATA_FORM']
-    data = {}
-    for field_source_name, field_source_values in call_data_config['fields'].iteritems():
-        for k, v in field_source_values.iteritems():
-            data[k] = source_data[field_source_name].get(v, '')
-    url = call_data_config['url']
-    requests.post(url, data=data)
-    store_event('save_call', {'raw_data': raw_data, 'saved_data': data})
+
+    # match raw data to form fields
+    inserts = []
+    for section, values in raw_data.items():
+        if section in app.config['CALL_FORM_FIELDS']:
+            for field_name, value in values.items():
+                if field_name in app.config['CALL_FORM_FIELDS'][section]:
+                    column_name = app.config['CALL_FORM_FIELDS'][section][field_name]['column_name']
+                    inserts.append([column_name, callee_id, value])
+
+    # insert the records in parallel into the sheet
+    pool = ThreadPool(4)
+    pool.map(insert_record, inserts)
+    pool.close()
+    pool.join()
+    pool.terminate()
+
+    store_event('save_call', {'raw_data': raw_data})
     return 'saved'

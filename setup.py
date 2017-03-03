@@ -10,9 +10,9 @@ setup(
     install_requires=[
         'Flask==0.10.1',
         'Flask-Cors==1.8.0',
-        'gunicorn',
         'redis==2.8.0',
-        'requests==0.14.1'
+        'requests==2.13.0',
+        'google-api-python-client==1.6.2'
     ],
     entry_points={"console_scripts": ["callaborate=callaborate:main"]}
 )

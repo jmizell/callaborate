@@ -12,7 +12,7 @@ def make_call(number):
         'number': number,
     }
     r = requests.post(url, data=json.dumps(data), headers=JSON_HEADERS)
-    return r.json['id']  # session_id
+    return r.json()['id']  # session_id
 
 
 def send_signal(session_id, signal):
