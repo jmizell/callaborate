@@ -158,6 +158,13 @@ def save_call():
                     column_name = app.config['CALL_FORM_FIELDS'][section][field_name]['column_name']
                     inserts.append([column_name, callee_id, value])
 
+    if 'timestamp' in app.config['CALL_FORM_FIELDS']:
+        utc_offset_hours = int(app.config['TIMEZONE_UTC_OFFSET'])
+        utc_offset = timedelta(seconds=60 * 60 * utc_offset_hours)
+        timestamp = str(datetime.utcnow() + utc_offset)
+        column_name = app.config['CALL_FORM_FIELDS']['timestamp']['timestamp']['column_name']
+        inserts.append([column_name, callee_id, timestamp])
+
     # store the records
     callees.write_call_ranges(inserts)
     store_event('save_call', {'raw_data': raw_data})

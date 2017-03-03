@@ -62,8 +62,10 @@ CALL_FORM_FIELDS = {
         "lastName": {"column_name": "agent_last_name"},
         "phoneNumber": {"column_name": "agent_phone"},
         "zipCode": {"column_name": "support"}
+    },
+    "timestamp": {
+        "timestamp": {"column_name": "timestamp"}
     }
-
 }
 CALL_SCRIPT = "<a href='https://docs.google.com/document/d/xxxxxxxxx/edit?usp=sharing' target='_blank'>Click here for call script</a>"
 CALL_TO_ACTION = "<h2>Let's Dial for Democracy!</h2>" \
