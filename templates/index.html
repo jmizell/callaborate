@@ -1,4 +1,3 @@
-{% raw %}
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html ng-app class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html ng-app class="no-js lt-ie9 lt-ie8"> <![endif]-->
@@ -7,26 +6,16 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>Tell Republican Party Leaders: We Care About Corruption!</title>
+  <title>{{ TITLE }}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <meta property="og:title" content="Tell Republican Party Leaders: We Care About Corruption!"/>
-    <meta property="og:site_name" content="Mayday.US"/>
-    <meta property="og:url" content="http://call.mayday.us/"/>
-    <meta property="og:image" content="https://mayday.us/images/rubens_fb_share.jpeg"/>
-    <meta property="og:description" content="Jim Rubens is the leading Republican champion of anti-corruption reform. His election is today. Help us call every undecided voter in New Hampshire to let them know!"/>
-
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-  <!-- <link rel="stylesheet" href="css/bootstrap-theme.min.css"> -->
+  <link rel="stylesheet" href="css/bootstrap-theme.min.css">
 
   <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.2/modernizr.min.js"></script>
-  <!--link href="/basic.css" media="all" rel="stylesheet" type="text/css" /-->
-  <link rel="stylesheet" href="//mayday.us/css/common.css?1">
-  <link rel="stylesheet" href="//mayday.us/css/index.css?7">
 
   <link href='//fonts.googleapis.com/css?family=Roboto:400,300,500,900' rel='stylesheet' type='text/css'>
   <link href='//fonts.googleapis.com/css?family=Merriweather:700,400,700italic' rel='stylesheet' type='text/css'>
-  <!-- <link href='//fonts.googleapis.com/css?family=Roboto+Condensed' rel='stylesheet' type='text/css'> -->
   <style type="text/css" media="screen">
     body{background:#fff;}
   </style>
@@ -108,20 +97,7 @@
       padding-top:20px;
     }
   </style>
-  <script src="//c.shpg.org/220/sp.js"></script>
   <!-- End of Caller-specific HEAD content -->
-  <!--<script>
-   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-
-   ga('create', 'UA-50367295-1', 'mayday.us');
-   ga('require', 'displayfeatures');
-
-   ga('send', 'pageview');
-  </script>-->
 </head>
 
 <body>
@@ -131,7 +107,7 @@
 <div ng-controller="CallerController">
 <header class="navbar navbar-fixed-top">
   <div class="container" style="position:relative">
-    <a class="navbar-brand ir" href="#">MAYDAY.US</a>
+    <a class="navbar-brand ir" href="#">{{ ORGANIZATION_NAME }}</a>
     <div class="row navbar-social"  style="">
       <div class="navbar-header pull-right  hidden-xs hidden-sm">
         <div class="">
@@ -159,12 +135,14 @@
         <div class="container">
           <div class="row">
             <div class="col-xs-11">
-              <img src="images/logo-9.svg" alt="MayDay PAC Logo" />
+              {{ LOGO|safe }}
             </div>
           </div>
         </div>
       </header>
+{% raw %}
       <p style="display: none;">state: {{state}}; showWelcome: {{showWelcome}}</p>
+{% endraw %}
       <div class="container">
         <div class="row">
           <div class="col-xs-12">
@@ -172,39 +150,34 @@
               Saving...
             </div>
             <div class="alert alert-warning" ng-show="status && status != 'saving'">
+{% raw %}
               {{status}}
+{% endraw %}
             </div>
-            <!--div class="alert alert-success alert-dismissible" role="alert" ng-show="success">
-              <button type="button" class="close" ng-click="success = false"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-              Thanks for Dialing for Democracy! Click "place another call" to dial the next person on your list.
-            </div-->
           </div><!-- end of col -->
         </div><!-- end of .row -->
         <div class="landing" ng-show="state.startsWith('landing.')">
           <div class="signin-form col-xs-12">
             <div class="jumbotron">
-            <h2>Let's Dial for Democracy!</h2>
-                <p>
-                Jim Rubens is the leading Republican champion of anti-corruption reform, and he's facing off against ex-lobbyist Scott Brown in the New Hampshire Primary <em>today!</em> Rubens has cut Brown's lead in half in the last week, but still has a long way to go until everyone knows his name.</p>
-                <p><strong>The Primary is TODAY! Help us call every undecided voter in New Hampshire to enlist their help. We're sending Republican party leaders a message: voters care about corruption.</strong></p>
+            {{ CALL_TO_ACTION|safe }}
             </div>
           </div>
+{% raw %}
           <div class="signin-form col-sm-8">
             <div class="panel panel-default">
               <div class="panel-body">
                 <form role="form" name="signinForm" ng-show="state == 'landing.signin'">
                   <div class="form-group col-xs-6">
                     <label>Your name</label>
-                    <input type="text" class="form-control" placeholder="First Name" ng-model="id.firstName">
+                    <input type="text" class="form-control" placeholder="First Name" ng-model="id.firstName" required>
                   </div>
                   <div class="form-group col-xs-6">
                     <label></label>
-                    <!--label for="signupName">Your last name</label-->
-                    <input type="text" class="form-control" placeholder="Last Name" ng-model="id.lastName">
+                    <input type="text" class="form-control" placeholder="Last Name" ng-model="id.lastName" required>
                   </div>
                   <div class="form-group col-xs-12">
                     <label for="signupEmail1">Your email address</label>
-                    <input type="email" class="form-control" placeholder="Enter email" ng-model="id.emailAddress">
+                    <input type="email" class="form-control" placeholder="Enter email" ng-model="id.emailAddress" required>
                   </div>
                   <div class="form-group col-xs-6">
                     <label for="signupEmail1">Your phone number (required)</label>
@@ -227,7 +200,7 @@
                   <li>Enter your information (so we know who made which calls)</li>
                   <li>Review the call scripts and get comfortable with what you’re going to say</li>
                   <li>When you’re ready, click “Connect Now”. Our system will call your number. You don’t have to dial anything. </li>
-                  <li>Click the "start calling voters" button and we'll try to connected you to a real live person in New Hampshire.</li>
+                  <li>Click the "start calling voters" button and we'll try to connected you to a real live voter.</li>
                   <li>Keep calling! Remember, we're going to get a lot of unanswered phones, voicemail boxes, and some wrong numbers. Don't give up -- just click the appropriate button, and move on to the next call.</li>
                   </ol>
                   </small>
@@ -267,10 +240,7 @@
                   Calling Info
                 </div>
                 <div class="panel-body" ng-show="state == 'after_hours'">
-                  <!--h2>Sorry, we're done for the night!</h2>
-                  <p>We're only making calls until 9:30pm New Hampshire time each evening. Please try again tomorrow -- we start up at 9am.</p-->
-                  <h2>That's all, folks!</h2>
-                  <p>The New Hampshire polls have closed, so we're done for the time being. Watch your email for updates about the next time we put the call tool into action. And please let us know about any questions, problems or feedback by emailing <a href="info@mayday.us">info@mayday.us</a>!</p-->
+                  <h2>That's all, folks! Calling hours have ended.</h2>
                 </div><!-- end of .panel-body -->
                 <div class="panel-body" ng-show="state == 'disconnected'">
                   <p>First, read through the script.</p>
@@ -302,8 +272,9 @@
               </div><!-- end of .panel -->
               <p ng-hide="state == 'disconnected' || state == 'after_hours'"><small>Not properly connected? <a ng-click="connect_caller()">Click here to get called again</a></small></p>
               <p>
-                Come <a target="_blank"href="http://us21.chatzy.com/66874859339673">join the callers&rsquo; live chat!</a><br/>
-                You can also send feedback to <a href="info@mayday.us">info@mayday.us</a>
+{% endraw %}
+                {{ AGENT_SUPPORT_INFO|safe }}
+{% raw %}
               </p>
               <div class="panel panel-default" ng-show="state == 'connected.waiting'">
                 <div class="panel-heading">
@@ -321,6 +292,7 @@
               </div>
             </div><!-- end of sidepanel-scroller -->
           </div><!-- end of .control -->
+{% endraw %}
           <div class="col-xs-7 script">
             <div class="panel panel-default">
               <div class="panel-heading">
@@ -328,7 +300,6 @@
                 <span style="float: right">
               </div>
               <div class="panel-body">
-{% endraw %}
                 <p>{{ CALL_SCRIPT|safe }}</p>
 
                 {% for field_name, field in CALL_FORM_FIELDS['callInfo'].items() %}
@@ -354,7 +325,6 @@
                 {% endfor %}
 
                 <button ng-click="saveStatus('Connected')" ng-disabled="state != 'connected.calling'">Save</button>
-{% raw %}
               </div><!-- end of .panel-body -->
             </div><!-- end of .panel -->
           </div><!-- end of .script -->
@@ -372,11 +342,11 @@
               <ol>
                 <li><strong>Get Prepared:</strong> Read through the script so you're familiar with it before you start talking to voters.</li>
                 <li><strong>Start calling:</strong> Click the "connect now" button and we'll dial your number to connect you into the system.</li>
-                <li><strong>Speak naturally:</strong> Mayday is about real people connecting with each other. Use the script as a guide, but let yourself show through too!</li>
+                <li><strong>Speak naturally:</strong> Phone banking is about real people connecting with each other. Use the script as a guide, but let yourself show through too!</li>
                 <li><strong>Enter data:</strong> Complete the survey answers for each call as you make it. Click the "save" button at the bottom of the page when you're done.</li>
                 <li><strong>Don't hang up!</strong> Press * to end a call instead of hanging up. When you're ready, we'll automatically connect you to the next person on your list</li>
               </ol>
-              <p>If you have any problems, questions or feedback please email <a href="mailto:info@mayday.us">info@mayday.us</a></p>
+              <p>If you have any problems, questions or feedback please email <a href="{{ CONTACT_EMAIL }}">{{ CONTACT_EMAIL }}</a></p>
               <button class="btn btn-default" ng-click="showWelcome = false">Continue to call tool</button>
             </div>
           </div>
@@ -386,29 +356,21 @@
 
 <!-- End of Caller-specific BODY content -->
 
-
 <footer>
   <div class="container">
     <div class="row">
       <div class="col-md-8">
         <div class="safeharbor">
           <p>
-            Paid for by Mayday PAC. <br/>
-            Not authorized by any candidate or candidate's committee.<br/>
-            MAYDAY.US
+            {{ FOOTER|safe }}
           </p>
         </div>
-        <p class="copyright">&copy; 2014 Mayday PAC, Some rights reserved. <a href="http://creativecommons.org/licenses/by-sa/4.0">
-      <img src="//mayday.us/images/80x15.png"></p>
       </div>
       <div class="col-md-4">
-        <!-- <a href="#" class="ir social-link youtube" title="Youtube Page">Youtube Page</a> -->
-        <a href="https://twitter.com/MAYDAYUS" class="ir social-link twitter" title="Twitter Page">Twitter Page</a>
-        <a href="https://www.facebook.com/groups/282646648577039/" class="ir social-link facebook" title="Facebook Page">Facebook Page</a>
+          {{ SOCIAL|safe }}
       </div>
     </div>
   </div>
 </footer>
 </body>
 </html>
-{% endraw %}

@@ -104,25 +104,3 @@ And the webapp in another:
 
     python app.py
 
-Deploy
-------
-
-The app is designed to be deployed on Heroku. You'll likely want to install [Heroku's command-line client (CLI)](https://toolbelt.heroku.com/) (note that you can create the app through Heroku's control panel and add the `heroku` git remote manually if you don't want to bother installing the Heroku CLI).
-
-First commit any changes you've made (likely edits to the call script and/or config file):
-
-    git add static/index.html
-    git commit -m "write a call script"
-    git add config.json
-    git commit -m "set up form mappings in config.json"
-
-Then create the Heroku app and deploy:
-
-    heroku create mycallerapp
-    git push heroku master
-
-This should install and start running the app on Heroku, then show you it's public URL. Test it out to make sure everything is working, then, when you're ready, set the app into "production mode" to start making calls to real people on your list:
-
-    heroku config:set PRODUCTION=true
-
-Happy calling!

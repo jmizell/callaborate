@@ -1,10 +1,11 @@
 TESTING = False
 DEBUG = False
-STATIC_FOLDER = "/app/config/static/"
-TEMPLATE_FOLDER = "/app/config/templates/"
+STATIC_FOLDER = "/app/callaborate/static/"
+TEMPLATE_FOLDER = "/app/callaborate/templates/"
 BIND_HOST = "0.0.0.0"
 BIND_PORT = 5000
 SECRET_KEY = "CHANGE-ME"
+LOG_FILE = "/var/log/callaborate_access.log"
 
 TIMEZONE_UTC_OFFSET = -7
 CALL_TIME_START = 0
@@ -65,9 +66,19 @@ CALL_FORM_FIELDS = {
 
 }
 CALL_SCRIPT = "<a href='https://docs.google.com/document/d/xxxxxxxxx/edit?usp=sharing' target='_blank'>Click here for call script</a>"
+CALL_TO_ACTION = "<h2>Let's Dial for Democracy!</h2>" \
+                 "<p>Help us call every undecided voter to enlist their help.</p>"
+FOOTER = "Copyright Political Action Committee"
+SOCIAL = ""
+TITLE = "Political Action Committee Dailer"
+CONTACT_EMAIL = "info@political-action-committee.not-a-domain"
+AGENT_SUPPORT_INFO = "Come <a target=\"_blank\" href=\"https://political-action-committee-chat@slack.com\">" \
+                     "join the callers&rsquo; live chat!</a><br/>" \
+                     "You can also send feedback to <a href=\"info@political-action-committee.not-a-domain\">" \
+                     "info@political-action-committee.not-a-domain</a>"
+LOGO = "<img src='images/logo-9.svg' alt='Politial Action Committee Logo' />"
+ORGANIZATION_NAME = "Political Action Committee"
 SPREADSHEET_ID = ""
-GOOGLE_APP_ID = ""
-GOOGLE_APP_SECRET = ""
 GOOGLE_KEY_FILE_DICT = {
   "type": "service_account",
   "project_id": "",

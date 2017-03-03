@@ -36,6 +36,12 @@ class CallSheet:
         return discovery.build('sheets', 'v4', http=http)
 
     def _sheet_to_dict(self, rows):
+        """
+        Convert api response values to a list of dictionaries, assuming first row is column headers
+
+        :param rows: api response values, list of list
+        :return: a list of containing dictionary rows
+        """
         calls = []
         self.headers = rows[0]
         for row in rows[1:]:
@@ -44,6 +50,11 @@ class CallSheet:
         return calls
 
     def _load_callees(self):
+        """
+        Retrieves the constituent list from the Google Sheet
+
+        :return: None
+        """
         result = self._get_sheet_service().spreadsheets().values().get(
             spreadsheetId=app.config['SPREADSHEET_ID'],
             range='A:ZZ').execute()
@@ -52,6 +63,13 @@ class CallSheet:
             self.calls = self._sheet_to_dict(values)
 
     def get_cell_range(self, row, column_name):
+        """
+        Converts column names, and rows values to Sheets API cell ranges
+
+        :param row: zero indexed sheet row, zero starting from row 2 in Google Sheet
+        :param column_name: string name of column from Google Sheet
+        :return: Sheets cell range
+        """
         column = self.headers.index(column_name) + 1
         result = []
         while column:
@@ -60,13 +78,77 @@ class CallSheet:
         return ''.join(result) + str(row + 2)
 
     def get(self, index):
+        """
+        Retrieve a single row from the Google Sheet
+
+        :param row: zero indexed sheet row, zero starting from row 2 in Google Sheet
+        :return: dictionary of cell values
+        """
         return self.calls[index]
 
-    def write_cell(self, column_name, row, value):
+    def write_cell(self, row, column_name, value):
+        """
+        Writes a single cell value to Google Sheet
+
+        :param row: zero indexed sheet row, zero starting from row 2 in Google Sheet
+        :param column_name: string name of column from Google Sheet
+        :param value: cell value
+        :return: None
+        """
         body = {'values': [[value]]}
         self._get_sheet_service().spreadsheets().values().update(
-            spreadsheetId=self.spreadsheet_id, range=self.get_cell_range(row, column_name),
+            spreadsheetId=self.spreadsheet_id, range=self.get_cell_range(row=row, column_name=column_name),
             valueInputOption="RAW", body=body).execute()
+
+    def _format_batch_data(self, values):
+        """
+        Formats a list of cell values with column names, and rows to Sheets API data values
+
+        :param values: a list of lists, containing individual cell values, with the format of
+            [
+              [
+                COLUMN_NAME,
+                ROW,
+                CELL_VALUE
+              ],
+              ...
+            ]
+        :return: a list of dictionaries containing Sheets data
+        """
+        data = []
+        for value in values:
+            column_name = value[0]
+            row = value[1]
+            cell_value = value[2]
+            data.append(
+                {
+                    'range': self.get_cell_range(row=row, column_name=column_name),
+                    'values': [[cell_value]]
+                }
+            )
+        return data
+
+    def write_call_ranges(self, values):
+        """
+        Takes a list of cell values, and batch inserts them into the Google Sheet
+
+        :param values: a list of lists, containing individual cell values, with the format of
+            [
+              [
+                COLUMN_NAME,
+                ROW,
+                CELL_VALUE
+              ],
+              ...
+            ]
+        :return: None
+        """
+        body = {
+            'valueInputOption': "RAW",
+            'data': self._format_batch_data(values)
+        }
+        self._get_sheet_service().spreadsheets().values().batchUpdate(
+            spreadsheetId=self.spreadsheet_id, body=body).execute()
 
 
 callees = CallSheet(app.config['GOOGLE_KEY_FILE_DICT'], app.config['SPREADSHEET_ID'])
@@ -89,15 +171,17 @@ def get_next_callee():
     """
     # TODO Testing, fix before commit
     """
-    index = redis.incr(CALLEE_COUNTER_KEY) - 1
+    # index = redis.incr(CALLEE_COUNTER_KEY) - 1
+    index = 0
     callee = callees.get(index)
     redis.sadd(CALLED_NUMBERS_SET_KEY, callee['phone'])
-    if redis.sismember(CALLED_NUMBERS_SET_KEY, callee['phone']):
-        store_event('skipped_repeat_number', callee)
-        return get_next_callee()
-    else:
-        redis.sadd(CALLED_NUMBERS_SET_KEY, callee['phone'])
-        return index, callee
+    return index, callee
+    # if redis.sismember(CALLED_NUMBERS_SET_KEY, callee['phone']):
+    #     store_event('skipped_repeat_number', callee)
+    #     return get_next_callee()
+    # else:
+    #     redis.sadd(CALLED_NUMBERS_SET_KEY, callee['phone'])
+    #     return index, callee
 
 
 def get_events():

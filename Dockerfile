@@ -1,15 +1,17 @@
 FROM python:2.7
 
-COPY data /app/config/data
-COPY static /app/config/static
-COPY templates /app/config/templates
-COPY app_settings.py /app/config/app_settings.py
-COPY setup.py /app/setup.py
-COPY callaborate /app/callaborate/
+COPY static /app/callaborate/static
+COPY templates /app/callaborate/templates
+COPY app_settings.py.example /app/callaborate/app_settings.py.example
+COPY setup.py /app/callaborate/setup.py
+COPY callaborate /app/callaborate/callaborate
+COPY tropo_call_script.py /app/callaborate/tropo_call_script.py
 
-RUN cd /app && \
+RUN cd /app/callaborate && \
     python setup.py install
 
 ENV APP_SETTINGS /app/config/app_settings.py
 
-CMD /bin/bash
+EXPOSE 5000
+
+CMD /usr/local/bin/callaborate

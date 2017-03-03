@@ -1,5 +1,10 @@
-from app import app
-from views import *
+import os
+
+if 'APP_SETTINGS' in os.environ and os.path.isfile(os.environ['APP_SETTINGS']):
+    from app import app
+    from views import *
+else:
+    from init_error import *
 
 
 def main():
@@ -8,5 +13,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4

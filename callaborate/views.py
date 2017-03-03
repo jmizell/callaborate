@@ -1,5 +1,4 @@
 import hashlib
-from multiprocessing.dummy import Pool as ThreadPool
 from datetime import datetime, timedelta
 from functools import wraps
 from flask import jsonify, request, send_from_directory, render_template
@@ -62,7 +61,7 @@ def build_callee(raw_callee):
         'last_name': ('lastName', t),
         'residential_city': ('residentialCity', r),
     }
-    return dict((k_out, l(raw_callee[k_in])) for k_in, (k_out, l) in mapping.iteritems())
+    return dict((k_out, l(raw_callee[k_in])) for k_in, (k_out, l) in mapping.items())
 
 
 def get_callee():
@@ -83,7 +82,15 @@ def root():
     return render_template(
         'index.html',
         CALL_SCRIPT=app.config['CALL_SCRIPT'],
-        CALL_FORM_FIELDS=app.config['CALL_FORM_FIELDS'])
+        CALL_FORM_FIELDS=app.config['CALL_FORM_FIELDS'],
+        CALL_TO_ACTION=app.config['CALL_TO_ACTION'],
+        FOOTER=app.config['FOOTER'],
+        SOCIAL=app.config['SOCIAL'],
+        LOGO=app.config['LOGO'],
+        TITLE=app.config['TITLE'],
+        ORGANIZATION_NAME=app.config['ORGANIZATION_NAME'],
+        CONTACT_EMAIL=app.config['CONTACT_EMAIL'],
+        AGENT_SUPPORT_INFO=app.config['AGENT_SUPPORT_INFO'])
 
 
 @app.route('/call_count')
@@ -151,12 +158,7 @@ def save_call():
                     column_name = app.config['CALL_FORM_FIELDS'][section][field_name]['column_name']
                     inserts.append([column_name, callee_id, value])
 
-    # insert the records in parallel into the sheet
-    pool = ThreadPool(4)
-    pool.map(insert_record, inserts)
-    pool.close()
-    pool.join()
-    pool.terminate()
-
+    # store the records
+    callees.write_call_ranges(inserts)
     store_event('save_call', {'raw_data': raw_data})
     return 'saved'
