@@ -102,9 +102,7 @@ function CallerController($scope, $http) {
   };
   
   $scope.saveStatus = function(status){
-    $scope.callInfo.status = status;
+    $scope.callInfo.call_status = status;
     $scope.save();
   };
 }
-
-// vim: tabstop=8 expandtab shiftwidth=2 softtabstop=2

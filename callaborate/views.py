@@ -21,13 +21,6 @@ def check_key(index, key):
     return create_key(index) == key
 
 
-def insert_record(parameters):
-    column_name = parameters[0]
-    callee_id = parameters[1]
-    value = parameters[2]
-    callees.write_cell(column_name=column_name, row=callee_id, value=value)
-
-
 def timeblock(inner_fn):
     @wraps(inner_fn)
     def outer_fn(*args, **kwargs):

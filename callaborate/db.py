@@ -208,6 +208,7 @@ def get_next_callee():
     if index > callees.length() - 1:
         callees.load_callees()
         redis.delete(CALLEE_COUNTER_KEY, CALLED_NUMBERS_SET_KEY)
+        return get_next_callee()
 
     # if the called number set has no records, set them with recorded values from sheet
     if redis.scard(CALLED_NUMBERS_SET_KEY) == 0:
