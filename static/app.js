@@ -72,6 +72,10 @@ function CallerController($scope, $http) {
           $scope.state = 'after_hours';
           return;
         }
+        if(data.error === 'no_available_number'){
+          $scope.state = 'no_available_number';
+          return;
+        }
         $scope.callee = data;
     }).error(function(data, status, headers, config) {
         $scope.status = status;

@@ -5,7 +5,7 @@ from flask import jsonify, request, send_from_directory, render_template
 from flask.ext.cors import cross_origin
 import calls
 import db
-from db import store_event, get_next_callee, callees
+from db import store_event, get_next_callee, callees, NoAvailableNumber
 from app import app
 from app import SECRET
 
@@ -131,7 +131,10 @@ def connect_caller():
 @timeblock
 def connect_callee():
     data = request.get_json()
-    callee, phone = get_callee()
+    try:
+        callee, phone = get_callee()
+    except NoAvailableNumber:
+        return jsonify(error='no_available_number')
     calls.send_signal(data['sessionId'], phone)
 
     event_data = {'caller': data, 'callee': callee, 'phone': phone}

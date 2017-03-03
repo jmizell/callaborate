@@ -252,6 +252,10 @@
                   <p>Once you've listened to the instructions, start placing calls to voters.</p>
                   <button ng-click="connect_callee()">Start calling voters now</button>
                 </div><!-- end of .panel-body -->
+                <div class="panel-body" ng-show="state == 'no_available_number'">
+                  <h2>We did it!</h2>
+                  <p>All numbers in the call list, have been reached. Great job!</p>
+                </div><!-- end of .panel-body -->
                 <div class="panel-body" ng-show="state == 'connected.calling' || state == 'connected.saving'">
                   <p>Calling <strong>{{callee.firstName}} {{callee.lastName}}</strong> now. It may take a few seconds to start ringing.</p>
                   <ol>

@@ -18,6 +18,14 @@ CALLED_NUMBERS_SET_KEY = 'called_numbers_set'
 redis = redis.from_url(REDIS_URL)
 
 
+class NoAvailableNumber(Exception):
+    """
+    No un-called numbers remain in list
+    """
+    def __str__(self):
+        return repr("No un-called numbers remain in list")
+
+
 class CallSheet:
     def __init__(self, key_file_dict, spreadsheet_id):
         self.key_file_dict = key_file_dict
@@ -29,7 +37,7 @@ class CallSheet:
             scopes=self.scopes)
         self.calls = []
         self.headers = []
-        self._load_callees()
+        self.load_callees()
 
     def _get_sheet_service(self):
         http = self.credentials.authorize(httplib2.Http())
@@ -49,7 +57,7 @@ class CallSheet:
             calls.append(dict(zip(self.headers, row)))
         return calls
 
-    def _load_callees(self):
+    def load_callees(self):
         """
         Retrieves the constituent list from the Google Sheet
 
@@ -85,6 +93,9 @@ class CallSheet:
         :return: dictionary of cell values
         """
         return self.calls[index]
+
+    def length(self):
+        return len(self.calls)
 
     def write_cell(self, row, column_name, value):
         """
@@ -167,16 +178,54 @@ def count_calls():
     return redis.get(CALLEE_COUNTER_KEY)
 
 
+def set_called_list():
+    """
+    Iterates through the call list, and adds numbers to the called_number_set that have been recorded as contacted
+
+    :return: None
+    """
+    pipe = redis.pipeline()
+    for callee in callees.calls:
+        if callee['call_status'] != '':
+            redis.sadd(CALLED_NUMBERS_SET_KEY, callee['phone'])
+    pipe.execute()
+
+
+def get_unique_number_count():
+    return len(set(map(lambda x: x['phone'], callees.calls)))
+
+
 def get_next_callee():
-    index = redis.incr(CALLEE_COUNTER_KEY) - 1
+    """
+    Pulls the next number in the record that has not been contacted,
+    or reloads the list if the end of the records has been met.
+
+    :return: integer index, dictionary callee data
+    """
+    index = int(redis.incr(CALLEE_COUNTER_KEY)) - 1
+
+    # if index is passed last record, reload data from sheets
+    if index > callees.length() - 1:
+        callees.load_callees()
+        redis.delete(CALLEE_COUNTER_KEY, CALLED_NUMBERS_SET_KEY)
+
+    # if the called number set has no records, set them with recorded values from sheet
+    if redis.scard(CALLED_NUMBERS_SET_KEY) == 0:
+        set_called_list()
+
+        # if the total number of unique numbers is the same as the number called, signal complete
+        if get_unique_number_count() <= redis.scard(CALLED_NUMBERS_SET_KEY):
+            raise NoAvailableNumber
+
     callee = callees.get(index)
-    redis.sadd(CALLED_NUMBERS_SET_KEY, callee['phone'])
-    if redis.sismember(CALLED_NUMBERS_SET_KEY, callee['phone']):
+
+    # if record shows the number has been contacted, skip calleee
+    if callee['call_status'] != '' or redis.sismember(CALLED_NUMBERS_SET_KEY, callee['phone']):
         store_event('skipped_repeat_number', callee)
         return get_next_callee()
-    else:
-        redis.sadd(CALLED_NUMBERS_SET_KEY, callee['phone'])
-        return index, callee
+
+    redis.sadd(CALLED_NUMBERS_SET_KEY, callee['phone'])
+    return index, callee
 
 
 def get_events():
