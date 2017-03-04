@@ -1,36 +1,21 @@
 
 _Call-aborate_ lets volunteers sign in to call potential supporters. It presents callers with a script and embedded questions, then calls their phone and connects them to the next call recipient. When the call is complete, the caller records the outcome and they are connected to the next number. All detailed info is logged in Redis, and completed call results are stored in a Google Spreadsheet via a Form for easy access.
 
-Demo: http://call.mayday.us
 
-Script
-------
-
-You'll need to write a call script, and probably want to change the questions asked. The script (and all of the markup...ew) is in `static/index.html`. Questions' answers should be bound into properties on the scope's `callInfo` object in order to be saved to the server.
-
-
-Google Form
+Google Service Account
 -----------
 
-You'll need to create a Google form configured to accept public responses. This acts as the backend for collecting the call data.
-
-First, add fields for the caller, callee and call question responses.
-
-For the caller: phone number, email address, first name, last name and zip code.
-For the callee: first name, middle name and last name.
-
-You'll also add fields for any additional questions you want callers to ask during the call.
+TODO: document service account creation
 
 
 Callee Data
 -----------
 
-The app expects to find a CSV file in the `data` directory with the list of people to call.
+Callaborate stores it's call data to a Google Drive Sheet. You'll need to give read, and write permissions to your service account, using the client_email provided to you in your service account key file.
 
 Required fields:
 
-`first_name`, `middle_name`, `last_name`, `residential_city`, `residential_zip5` & `phone`
-
+`first_name`, `middle_name`, `last_name`, `residential_city`, `residential_zip5`, `phone`, `call_status`
 
 
 Tropo
@@ -51,56 +36,34 @@ Testing with Tropo is free, but if you're doing any significant volume, you'll l
 Config
 ------
 
-You'll likely want to edit the included `config.json.example` (and save it as `config.json`) to include some config info. Note that all this info can optionally be passed as env vars instead of hard coding it.
-
-`TIMEZONE_UTC_OFFSET`: Offset of local timezone from UTC (eg. -4 for Eastern Time)
-
-`CALL_TIME_START`: The hour at which calling should open for the day
-
-`CALL_TIME_END`: The hour at which calling should close for the day
-
-`SECRET`: a random string; doesn't much matter what (used to generate client tokens)
-
-`TEST_CALLEE`: The number that will be dialed when running your app in non-production mode
-
-`TROPO_VOICE_API_KEY`: as the name implies, the API key from your Tropo app
-
-`TEST_CALL_FROM`: a phone number (as a string) to call first for testing the call code
-
-`TEST_CALL_TO`: a phone number (as a string) to call connect to for testing the call code
-
-`CALL_DATA_FORM`: JSON object containing info about the Google Spreadsheet/Form:
-
-- `url` is the `formResponse` URL (ie the page that the form `POST`s to)
-- `fields` is a set of mappings describing which Google form fields should be filled with what info. Info can come from the `caller`, `callee`, and `call` fields. Generally only the `call` fields should change to reflect the specific questions asked in the survey. You'll need to find the correct values by inspecting the Google Form to find the `name` value for each `input` element.
+TODO: document configuration file
 
 
-Redis
------
-
-All call info is logged to Redis, so you'll need to run a redis server locally while testing.
-
-The app will look for the REDISCLOUD_URL env var (as supplied by the RedisCloud Heroku add-on). If this isn't found, it will fall back to the Redis server in the default location ("redis://localhost:6379/0"; useful for local dev).
-
-
-
-Install
--------
-
-To run locally, install requirements with PIP
-
-    pip install -r requirements.txt
-
-Run
+Run 
 ---
 
-Once set up, running the app is simple:
+A docker image is provided for easy deployment. You'll need to mount your configuration file to /app/config/app_settings.py in the container. The default application log directory is /app/config/log
 
-Run redis in one terminal:
+If using a cloud based redis provider, you can specify the location in the Callaborate container using the REDISCLOUD_URL environment variable. Otherwise for small local deployments, we'll link the redis container to the callaborate container.
 
-    redis-server
+Start the redis container.
 
-And the webapp in another:
+```
+docker run -it --rm \
+  --name callaborte-redis \
+  redis
+```
 
-    python app.py
+Start the Callaborate app container, assuming a configuration file stored at /srv/callaborate/app_settings.py
+
+```
+docker run -it --rm \
+  --name callaborate \
+  --link callaborte-redis:redis \
+  -e REDISCLOUD_URL="redis://redis:6379/0" \
+  -p 80:80 \
+  -v /srv/callaborate/app_settings.py:/app/config/app_settings.py \
+  -v /srv/callaborate/log:/app/config/log \
+  jmizell/callaborate
+```
 
