@@ -9,6 +9,7 @@ COPY tropo_call_script.py /app/callaborate/tropo_call_script.py
 COPY main.py /app/main.py
 
 RUN cd /app/callaborate && \
-    python setup.py install
+    python setup.py install && \
+    mkdir -p /app/config/log
 
 ENV APP_SETTINGS /app/config/app_settings.py
