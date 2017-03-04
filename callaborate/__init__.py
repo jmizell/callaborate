@@ -1,10 +1,6 @@
 import os
-
-if 'APP_SETTINGS' in os.environ and os.path.isfile(os.environ['APP_SETTINGS']):
-    from app import app
-    from views import *
-else:
-    from init_error import *
+from app import app
+from views import *
 
 
 def main():
